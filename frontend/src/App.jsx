@@ -4,6 +4,10 @@ import Generator from "./components/Generator";
 import BlogViewer from "./components/BlogViewer";
 import styles from "./App.module.css";
 
+// In dev the Vite proxy handles relative URLs.
+// In production (Cloudflare Pages) set VITE_API_URL to the Render backend URL.
+const API = import.meta.env.VITE_API_URL || "";
+
 export default function App() {
   const [view, setView] = useState("generate"); // 'generate' | 'blog'
   const [markdown, setMarkdown] = useState("");
@@ -24,7 +28,7 @@ export default function App() {
 
   async function fetchOutputs() {
     try {
-      const res = await fetch("/outputs");
+      const res = await fetch(`${API}/outputs`);
       if (res.ok) {
         const data = await res.json();
         const files = data.files || [];
@@ -45,7 +49,7 @@ export default function App() {
     setView("blog");
 
     try {
-      const res = await fetch("/generate", {
+      const res = await fetch(`${API}/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic, ...options }),
@@ -80,7 +84,7 @@ export default function App() {
 
   async function handleLoadOutput(filename) {
     try {
-      const res = await fetch(`/outputs/${encodeURIComponent(filename)}`);
+      const res = await fetch(`${API}/outputs/${encodeURIComponent(filename)}`);
       const text = await res.text();
       if (!text) {
         setError("Empty response from server");
@@ -102,7 +106,7 @@ export default function App() {
 
   async function handleDelete(filename) {
     try {
-      await fetch(`/outputs/${encodeURIComponent(filename)}`, {
+      await fetch(`${API}/outputs/${encodeURIComponent(filename)}`, {
         method: "DELETE",
       });
       fetchOutputs();
