@@ -1,25 +1,155 @@
-# AgentResearch.ai
+<div align="center">
 
-An AI-powered research blog generator built with **LangGraph**, **Groq (Llama 3.3 70B)**, **Tavily** web search, and **HuggingFace** image generation. Features a React + Vite frontend with a ChatGPT-style UI.
+# ✦ AgentResearch.ai
 
----
-
-## Architecture
-
-```
-Frontend (React + Vite)  ──►  FastAPI backend  ──►  LangGraph pipeline
-                                                         ├── Router node (closed/hybrid/open_book)
-                                                         ├── Research node (Tavily search)
-                                                         ├── Orchestrator node (outline planning)
-                                                         ├── Worker nodes (parallel section writing)
-                                                         └── Reducer (merge + image generation)
-```
+_Transform any topic into a deep, publication-ready research blog — in seconds_
 
 ---
 
-## Local Development
+### 🎯 **Try It Now 👇🏼**
 
-### 1. Clone & set up Python environment
+<a href="https://agentresearch.ai" target="_blank">
+  <img src="https://img.shields.io/badge/🚀_LIVE-TRY_NOW-FF0000?style=for-the-badge&labelColor=000000" alt="Live Demo" height="50">
+</a>
+
+**👆 Click above to generate your first AI research blog instantly!**
+
+---
+
+### ⚡ **Powered By Cutting-Edge Technologies**
+
+<p align="center">
+  <a href="https://www.python.org/downloads/">
+    <img src="https://img.shields.io/badge/Python-3.10+-F2D9A0?style=for-the-badge&logo=python&logoColor=white" alt="Python" height="26">
+  </a>
+  <a href="https://langchain.com/">
+    <img src="https://img.shields.io/badge/🦜_LangGraph-Latest-C668FF?style=for-the-badge&logoColor=white" alt="LangGraph" height="26">
+  </a>
+  <a href="https://groq.com/">
+    <img src="https://img.shields.io/badge/⚡_Groq-Powered-F55036?style=for-the-badge&logoColor=white" alt="Groq" height="26">
+  </a>
+  <a href="https://fastapi.tiangolo.com/">
+    <img src="https://img.shields.io/badge/FastAPI-Latest-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" height="26">
+  </a>
+  <a href="https://vitejs.dev/">
+    <img src="https://img.shields.io/badge/React_+_Vite-18+-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" height="26">
+  </a>
+</p>
+
+<p align="center">
+  <strong>🦙 Llama 3.3 70B</strong> • <strong>🔍 Tavily Search</strong> • <strong>🎨 FLUX.1-schnell</strong> • <strong>🤗 HuggingFace</strong>
+</p>
+
+</div>
+
+---
+
+## 🌟 Overview
+
+### 🚀 **Your AI Research Team — On Demand**
+
+Tired of spending hours researching, writing, and formatting technical blog posts? **AgentResearch.ai** deploys a full multi-agent pipeline that does it all for you.
+
+💡 **What makes AgentResearch.ai special?**
+
+🎯 **Just Give It a Topic** — Type anything from _"The Working Architecture of Transformers"_ to _"State of Open-Source LLMs 2026"_ and get a fully structured, multi-section research blog with citations.
+
+⚡ **Parallel Agent Architecture** — Built on **LangGraph**, the pipeline fans out worker agents to write each section simultaneously — then merges everything into a cohesive blog. Dramatically faster than sequential writing.
+
+🔍 **Real Web Research** — A smart router decides if your topic needs live web data. If yes, **Tavily** searches the web and feeds curated evidence into every section.
+
+🎨 **Auto-Generated Images** — **HuggingFace FLUX.1-schnell** generates contextually placed images for each blog automatically.
+
+📚 **Full History** — Every generated blog is saved. Reload, search, and manage your entire research library from the Gemini-style sidebar.
+
+```
+┌──────────────┐     ┌─────────────┐     ┌──────────────────┐     ┌──────────────┐
+│    Router    │────▶│  Research   │────▶│  Orchestrator    │────▶│   Workers    │
+│  (route to  │     │  (Tavily    │     │  (outline plan)  │     │  (parallel   │
+│  research?) │     │   search)   │     │                  │     │   writers)   │
+└──────────────┘     └─────────────┘     └──────────────────┘     └──────┬───────┘
+                                                                          │
+                                                                          ▼
+                                                                   ┌──────────────┐
+                                                                   │   Reducer    │
+                                                                   │ (merge + AI  │
+                                                                   │   images)   │
+                                                                   └──────────────┘
+```
+
+**Perfect for:** Tech bloggers, researchers, developers writing documentation, content teams, or anyone who wants expert-level research blogs without the hours of work.
+
+---
+
+## ✨ Features
+
+### 🚀 **Core Capabilities**
+
+- **🧠 Multi-Agent Pipeline** — Router → Research → Orchestrator → Parallel Workers → Reducer
+- **🔍 Live Web Research** — Tavily-powered search for current events, news, and up-to-date technical content
+- **✍️ Parallel Section Writing** — LangGraph fans out worker nodes for each section simultaneously
+- **🎨 AI Image Generation** — FLUX.1-schnell generates and places contextual images automatically
+- **📚 Research Library** — All blogs saved to disk, searchable, with date grouping in the sidebar
+- **💾 One-Click Load** — Instantly reload any past blog from the history panel
+
+### 🎯 **Advanced Features**
+
+- **⚙️ Generation Options** — Control depth (quick/standard/deep), tone (technical/casual/formal), length, and citations toggle
+- **📅 Temporal Awareness** — Router detects time-sensitive topics and forces live research automatically
+- **🔒 Smart Routing** — Three modes: `closed_book`, `hybrid`, `open_book` — chosen automatically per topic
+- **🗑️ Blog Management** — Delete individual blogs directly from the sidebar
+- **↻ Auto-Refresh** — Sidebar polls for new blogs as they're generated in real time
+
+---
+
+## 🏗️ Architecture
+
+```
+AgentResearch.ai/
+├── 📡 api.py                        # FastAPI backend + full LangGraph pipeline
+├── 📋 requirements.txt
+├── 🔐 .env.example
+├── 📂 outputs/                      # Generated .md blogs (gitignored)
+├── 🖼️  images/                      # AI-generated images (gitignored)
+└── 🖥️  frontend/
+    ├── vite.config.js
+    └── src/
+        ├── App.jsx                  # State management + API calls
+        └── components/
+            ├── Generator.jsx        # Topic input, options panel, suggestions
+            ├── Generator.module.css
+            ├── Sidebar.jsx          # Blog history, search, date groups
+            ├── Sidebar.module.css
+            ├── BlogViewer.jsx       # Markdown renderer
+            └── BlogViewer.module.css
+```
+
+---
+
+## 🛠️ Technology Stack
+
+| Component         | Technology                    | Purpose                           |
+| ----------------- | ----------------------------- | --------------------------------- |
+| **LLM**           | 🦙 Llama 3.3 70B (Groq)       | Fast, accurate text generation    |
+| **Orchestration** | 🦜 LangGraph                  | Parallel multi-agent pipeline     |
+| **Web Search**    | 🔍 Tavily Search API          | Live research for current topics  |
+| **Image Gen**     | 🎨 HuggingFace FLUX.1-schnell | Auto-generated blog images        |
+| **Backend**       | ⚡ FastAPI + Uvicorn          | REST API + static file serving    |
+| **Frontend**      | ⚛️ React 18 + Vite            | ChatGPT-style UI with CSS Modules |
+
+---
+
+## 📦 Getting Started
+
+### 💻 **Run Locally**
+
+**Prerequisites:**
+
+- Python 3.10+
+- Node.js 18+
+- API keys for Groq and Tavily (HuggingFace optional)
+
+**Step 1 — Clone & set up Python**
 
 ```bash
 git clone https://github.com/your-username/agentresearch-ai.git
@@ -34,106 +164,115 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure environment variables
+**Step 2 — Configure environment variables**
 
 ```bash
 cp .env.example .env
-# Edit .env and fill in your API keys
+# Edit .env and fill in your keys
 ```
 
-Required keys:
-| Key | Where to get it |
-|-----|----------------|
-| `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) |
-| `TAVILY_API_KEY` | [app.tavily.com](https://app.tavily.com) |
-| `HUGGINGFACE_API_KEY` | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) |
+| Key                   | Where to get it                                                                                 |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `GROQ_API_KEY`        | [console.groq.com](https://console.groq.com) — free tier available                              |
+| `TAVILY_API_KEY`      | [app.tavily.com](https://app.tavily.com) — free tier available                                  |
+| `HUGGINGFACE_API_KEY` | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) — optional, for images |
 
-### 3. Start the backend
+**Step 3 — Start the backend**
 
 ```bash
-cd PROJECT
+cd agentresearch-ai
 uvicorn api:app --reload --port 8000
 ```
 
-### 4. Start the frontend
+**Step 4 — Start the frontend**
 
 ```bash
-cd PROJECT/frontend
+cd frontend
 npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173)
+Open [http://localhost:5173](http://localhost:5173) 🎉
 
 ---
 
-## Production Deployment (single server)
+## 🎮 Usage
 
-### Build the frontend
+### Basic Workflow
 
-```bash
-cd PROJECT/frontend
-npm run build          # outputs to frontend/dist/
-```
+1. **✍️ Enter a Topic**
+   - Type any research topic in the input box
+   - Use suggestion chips for inspiration (e.g. _"Explain RAG architectures"_)
 
-### Run the backend (serves the React build too)
+2. **⚙️ (Optional) Set Options**
+   - Click **Options** to choose depth, tone, length, and citations
+   - Default settings work great for most topics
 
-```bash
-cd PROJECT
-uvicorn api:app --host 0.0.0.0 --port 8000 --workers 2
-```
+3. **🚀 Generate**
+   - Hit the Generate button or press `Enter`
+   - Watch the pipeline run (typically 30–90 seconds)
 
-The FastAPI app auto-detects `frontend/dist/` and serves the SPA — no separate web server needed.
+4. **📚 Browse History**
+   - All past blogs appear in the left sidebar, grouped by date
+   - Search, click to reload, or delete any entry
 
-Set these environment variables on your server:
-
-```
-GROQ_API_KEY=...
-TAVILY_API_KEY=...
-HUGGINGFACE_API_KEY=...
-ALLOWED_ORIGINS=https://yourdomain.com
-```
-
-### Deploy to Railway / Render
-
-1. Connect your GitHub repo
-2. Set the **root directory** to `PROJECT`
-3. Set **build command**: `pip install -r requirements.txt && cd frontend && npm install && npm run build && cd ..`
-4. Set **start command**: `uvicorn api:app --host 0.0.0.0 --port $PORT`
-5. Add all env vars in the dashboard
-
-> ⚠️ Generated `outputs/` and `images/` are written to disk. On ephemeral containers (Railway free tier) these reset on restart. For persistence, mount a volume or swap to cloud storage (S3/R2).
-
----
-
-## Project Structure
+### Example Topics
 
 ```
-PROJECT/
-├── api.py                  # FastAPI backend + LangGraph pipeline
-├── requirements.txt
-├── .env.example
-├── outputs/                # Generated .md blogs (gitignored)
-├── images/                 # Generated images (gitignored)
-└── frontend/
-    ├── src/
-    │   ├── App.jsx
-    │   ├── components/
-    │   │   ├── Generator.jsx      # Input UI
-    │   │   ├── Sidebar.jsx        # Blog history
-    │   │   └── BlogViewer.jsx     # Markdown renderer
-    └── vite.config.js
+🔬 "The Working Architecture of Transformers"
+📊 "State of Open-Source LLMs — February 2026"
+🏗️  "System Design of a Real-Time Chat Application"
+🛡️  "How RLHF Makes LLMs Safer"
+⚡  "Comparing LangGraph vs CrewAI vs AutoGen"
+📱 "Building Production RAG Systems"
 ```
 
 ---
 
-## Tech Stack
+## 🤝 Contributing
 
-| Layer         | Technology                         |
-| ------------- | ---------------------------------- |
-| LLM           | Groq — Llama 3.3 70B Versatile     |
-| Orchestration | LangGraph (parallel worker fanout) |
-| Web search    | Tavily Search API                  |
-| Image gen     | HuggingFace FLUX.1-schnell         |
-| Backend       | FastAPI + Uvicorn                  |
-| Frontend      | React 18 + Vite + CSS Modules      |
+Contributions are welcome!
+
+1. 🍴 Fork the repository
+2. 🌿 Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. 💾 Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. 📤 Push to the branch (`git push origin feature/AmazingFeature`)
+5. 🔀 Open a Pull Request
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] 🌐 Export blogs as PDF / HTML
+- [ ] 📊 Blog analytics dashboard (word count, topic clusters)
+- [ ] 🔐 User authentication + multi-user library
+- [ ] ☁️ S3/R2 storage for generated outputs and images
+- [ ] 🔄 Streaming output (token-by-token display while generating)
+- [ ] 🤖 Additional LLM providers (OpenAI, Anthropic, Gemini)
+- [ ] 📱 Mobile-responsive layout
+- [ ] 🌍 Multi-language blog generation
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 🙏 Acknowledgments
+
+- [LangGraph](https://github.com/langchain-ai/langgraph) — For the powerful multi-agent orchestration framework
+- [Groq](https://groq.com/) — For lightning-fast LLM inference
+- [Tavily](https://tavily.com/) — For real-time web research capabilities
+- [HuggingFace](https://huggingface.co/) — For open-source image generation models
+
+---
+
+<div align="center">
+
+**Built with ❤️ using LangGraph, Groq, and React**
+
+⭐ Star this repo if it saves you hours of research writing!
+
+</div>
