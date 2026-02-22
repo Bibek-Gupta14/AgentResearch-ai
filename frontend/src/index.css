@@ -1,0 +1,93 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Pure black base so the spotlight has maximum contrast */
+  --bg: #050505;
+  --surface: #111111;
+  --surface-raised: #181818;
+  --border: #1e1e1e;
+  --border-hover: #2c2c2c;
+
+  /* Off-white text — never pure #fff */
+  --text: #e0e0e0;
+  --text-muted: #9e9e9e;
+  --text-dim: #555;
+
+  /* Accent — muted purple, gradient variant */
+  --accent: #079e07;
+  --accent-hover: #a994ff;
+  --accent-dim: rgba(124, 106, 247, 0.13);
+  --accent-glow: rgba(124, 106, 247, 0.28);
+  --accent-gradient: linear-gradient(to right, #00a6e0, #004377);
+
+  --danger: #f87171;
+  --success: #4ade80;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --radius: 8px;
+  --radius-sm: 5px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #363636;
+}
+
+/* Selection */
+::selection {
+  background: rgba(124, 106, 247, 0.22);
+  color: var(--text);
+}
+
+/* Global focus ring */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Respect user motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
