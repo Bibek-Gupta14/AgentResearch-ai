@@ -8,7 +8,7 @@ _Transform any topic into a deep, publication-ready research blog — in seconds
 
 ### 🎯 **Try It Now 👇🏼**
 
-<a href="https://agentresearch.ai" target="_blank">
+<a href="https://agentresearch-ai.pages.dev/" target="_blank"> 
   <img src="https://img.shields.io/badge/🚀_LIVE-TRY_NOW-FF0000?style=for-the-badge&labelColor=000000" alt="Live Demo" height="50">
 </a>
 
@@ -192,7 +192,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) 🎉
+Open [Live deployment](https://agentresearch-ai.pages.dev/) 🎉
 
 ---
 
