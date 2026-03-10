@@ -273,7 +273,7 @@ def generate_and_place_images(state: State):
             except Exception as e:
                 md = md.replace(placeholder, f"> **[Image: {spec.get('caption','')}]**\n")
                 continue
-        img_md = f"![{spec['alt']}](images/{filename})\n*{spec['caption']}*"
+        img_md = f"![{spec['alt']}](/images/{filename})\n*{spec['caption']}*"
         md = md.replace(placeholder, img_md)
 
     outputs_dir = Path("outputs")
