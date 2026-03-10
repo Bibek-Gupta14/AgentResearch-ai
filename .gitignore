@@ -24,7 +24,7 @@ node_modules/
 
 # ── Generated content (large, runtime-produced) ───────────────────────────────
 outputs/
-images/
+# images/ — now committed to persist across Render deployments
 
 # ── Jupyter ───────────────────────────────────────────────────────────────────
 *.ipynb_checkpoints/
