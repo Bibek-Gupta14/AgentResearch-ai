@@ -20,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 # ── LangChain / LangGraph ────────────────────────────────────────────────────
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langgraph.graph import StateGraph, START, END
@@ -32,12 +32,12 @@ import operator
 from pydantic import BaseModel as PydanticBase
 
 class Task(PydanticBase):
-    id: str
+    id: str = "task_1"
     title: str
-    goal: str
-    bullets: List[str]
-    target_words: int
-    section_type: str
+    goal: str = ""
+    bullets: List[str] = []
+    target_words: int = 250
+    section_type: str = "body"
     tags: List[str] = []
     requires_research: bool = False
     requires_citations: bool = False
@@ -45,22 +45,22 @@ class Task(PydanticBase):
 
 class Plan(PydanticBase):
     title: str
-    audience: str
-    tone: str
-    tasks: List[Task]
+    audience: str = "developers and tech enthusiasts"
+    tone: str = "technical and informative"
+    tasks: List[Task] = []
     blog_kind: Literal["explainer", "tutorial", "news_roundup", "comparison", "system_design"] = "explainer"
     constraints: List[str] = []
 
 class EvidenceItem(PydanticBase):
-    title: str
-    url: str
+    title: str = ""
+    url: str = ""
     published_at: Optional[str] = None
     snippet: Optional[str] = None
     source: Optional[str] = None
 
 class RouterDecision(PydanticBase):
-    needs_research: bool
-    mode: Literal["closed_book", "hybrid", "open_book"]
+    needs_research: bool = False
+    mode: Literal["closed_book", "hybrid", "open_book"] = "closed_book"
     queries: List[str] = []
 
 class EvidencePack(PydanticBase):
@@ -82,7 +82,22 @@ class State(TypedDict):
     recency_days: int
 
 # ── LLM ──────────────────────────────────────────────────────────────────────
-llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7)
+llm = ChatOpenAI(
+    model="openrouter/free",
+    openai_api_key=os.getenv("OPENROUTER_API_KEY"),
+    openai_api_base="https://openrouter.ai/api/v1",
+    temperature=0.7,
+)
+
+def _extract_json_dict(text: str) -> dict:
+    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group())
+        except Exception:
+            pass
+    return {}
 
 # ── Graph nodes (mirrors notebook exactly) ───────────────────────────────────
 ROUTER_SYSTEM = """You are a routing module for a technical blog planner.
@@ -91,14 +106,27 @@ Modes:
 - closed_book (needs_research=false): Evergreen topics.
 - hybrid (needs_research=true): Mostly evergreen but needs up-to-date examples.
 - open_book (needs_research=true): Mostly volatile: weekly roundups, "this week", "latest".
-If needs_research=true output 4-6 high-signal queries."""
+
+You must respond ONLY with a raw JSON object with these keys:
+{
+  "needs_research": true|false,
+  "mode": "closed_book"|"hybrid"|"open_book",
+  "queries": ["query 1", "query 2"]
+}"""
 
 def router(state: State):
-    decider = llm.with_structured_output(RouterDecision)
-    decision = decider.invoke([
+    resp = llm.invoke([
         SystemMessage(content=ROUTER_SYSTEM),
         HumanMessage(content=f"Topic: {state['topic']}"),
     ])
+    raw = _extract_json_dict(resp.content)
+    try:
+        decision = RouterDecision.model_validate(raw)
+    except Exception:
+        needs_res = raw.get("needs_research", False)
+        mode_val = raw.get("mode", "closed_book" if not needs_res else "hybrid")
+        queries = raw.get("queries", [])
+        decision = RouterDecision(needs_research=bool(needs_res), mode=mode_val, queries=queries if isinstance(queries, list) else [])
     return {"needs_research": decision.needs_research, "mode": decision.mode, "queries": decision.queries}
 
 def route_next(state: State) -> str:
@@ -114,8 +142,14 @@ def _tavily_search(query: str, max_results: int = 3):
             "published_at": r.get("published_date") or r.get("published_at"), "source": r.get("source")})
     return normalized
 
-RESEARCH_SYSTEM = """You are a research synthesizer. Given raw web search results, produce a deduplicated list of EvidenceItem objects.
-Rules: Only include items with a non-empty url. Keep snippets short. Deduplicate by URL."""
+RESEARCH_SYSTEM = """You are a research synthesizer. Given raw web search results, produce a list of EvidenceItem objects.
+Rules: Only include items with a non-empty url. Keep snippets short. Deduplicate by URL.
+You must respond ONLY with a raw JSON object:
+{
+  "evidence": [
+    {"title": "...", "url": "https://...", "snippet": "..."}
+  ]
+}"""
 
 def research(state: State):
     queries = state.get("queries", []) or []
@@ -128,26 +162,96 @@ def research(state: State):
         if r.get("snippet") and len(r["snippet"]) > 200:
             r["snippet"] = r["snippet"][:200] + "..."
     raw_results = raw_results[:15]
-    extractor = llm.with_structured_output(EvidencePack)
-    pack = extractor.invoke([SystemMessage(content=RESEARCH_SYSTEM),
-        HumanMessage(content=f"Raw results:\n{raw_results}")])
-    dedup = {}
-    for p in pack.evidence:
-        if p.url:
-            dedup[p.url] = p
+
+    resp = llm.invoke([
+        SystemMessage(content=RESEARCH_SYSTEM),
+        HumanMessage(content=f"Raw results:\n{raw_results}")
+    ])
+    raw = _extract_json_dict(resp.content)
+    evidence_list = []
+    for item in raw.get("evidence", []):
+        if isinstance(item, dict) and item.get("url"):
+            evidence_list.append(EvidenceItem(
+                title=item.get("title", ""),
+                url=item.get("url", ""),
+                snippet=item.get("snippet", ""),
+                published_at=item.get("published_at"),
+                source=item.get("source")
+            ))
+    dedup = {e.url: e for e in evidence_list}
     return {"evidence": list(dedup.values())}
 
-ORCH_SYSTEM = """You are a senior technical writer. Produce a highly actionable outline for a technical blog post.
-Hard requirements: Create 3-7 sections. Each task: goal (1 sentence), 2-4 bullets, target word count (100-400).
-Output must strictly match the Plan schema."""
+ORCH_SYSTEM = """You are a senior technical writer. Produce a structured outline plan for a technical blog post.
+Requirements:
+- Create 3-6 logical section tasks.
+- Respond ONLY with a valid JSON object matching this schema:
+{
+  "title": "Clear Catchy Blog Title",
+  "audience": "developers and AI engineers",
+  "tone": "technical and practical",
+  "blog_kind": "explainer",
+  "tasks": [
+    {
+      "id": "sec_1",
+      "title": "Introduction to Topic",
+      "goal": "Explain what the topic is and why it matters.",
+      "bullets": ["Key bullet point 1", "Key bullet point 2"],
+      "target_words": 250,
+      "section_type": "intro",
+      "requires_research": false,
+      "requires_citations": false,
+      "requires_code": false
+    }
+  ]
+}"""
 
 def orchestrator(state: State) -> dict:
     evidence = state.get("evidence", [])
     mode = state.get("mode", "closed_book")
-    plan = llm.with_structured_output(Plan).invoke([
+    resp = llm.invoke([
         SystemMessage(content=ORCH_SYSTEM),
         HumanMessage(content=(f"Topic: {state['topic']}\nMode: {mode}\n\n"
-            f"Evidence:\n{[e.model_dump() for e in evidence][:16]}"))])
+            f"Evidence:\n{[e.model_dump() for e in evidence][:16]}"))
+    ])
+    raw = _extract_json_dict(resp.content)
+
+    title = raw.get("title") or state["topic"]
+    audience = raw.get("audience", "developers")
+    tone = raw.get("tone", "technical")
+    blog_kind = raw.get("blog_kind", "explainer")
+    if blog_kind not in ["explainer", "tutorial", "news_roundup", "comparison", "system_design"]:
+        blog_kind = "explainer"
+
+    tasks_raw = raw.get("tasks") or raw.get("sections") or []
+    tasks = []
+    if isinstance(tasks_raw, list):
+        for idx, t in enumerate(tasks_raw, 1):
+            if isinstance(t, dict):
+                t_title = t.get("title", f"Section {idx}")
+                t_goal = t.get("goal", "")
+                t_bullets = t.get("bullets", [])
+                if isinstance(t_bullets, str):
+                    t_bullets = [t_bullets]
+                t_words = t.get("target_words") or t.get("word_count") or 250
+                tasks.append(Task(
+                    id=f"sec_{idx}",
+                    title=t_title,
+                    goal=t_goal,
+                    bullets=t_bullets if isinstance(t_bullets, list) else [],
+                    target_words=int(t_words) if str(t_words).isdigit() else 250,
+                    section_type=t.get("section_type", "body"),
+                    requires_research=bool(t.get("requires_research", False)),
+                    requires_citations=bool(t.get("requires_citations", False)),
+                    requires_code=bool(t.get("requires_code", False)),
+                ))
+    if not tasks:
+        tasks = [
+            Task(id="sec_1", title="Introduction", goal=f"Overview of {state['topic']}", bullets=["Background", "Core concept"], target_words=200),
+            Task(id="sec_2", title="Core Architecture & Working", goal="Technical breakdown", bullets=["Architecture details", "Key components"], target_words=350),
+            Task(id="sec_3", title="Practical Applications & Future", goal="Real world use cases", bullets=["Applications", "Key takeaways"], target_words=250),
+        ]
+
+    plan = Plan(title=title, audience=audience, tone=tone, blog_kind=blog_kind, tasks=tasks)
     return {"plan": plan}
 
 def fanout(state: State):

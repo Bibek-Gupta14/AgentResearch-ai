@@ -10,9 +10,21 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       proxy: {
-        "/generate": apiBase,
-        "/outputs": apiBase,
-        "/images": apiBase,
+        "/generate": {
+          target: apiBase,
+          changeOrigin: true,
+          timeout: 300000,
+          proxyTimeout: 300000,
+        },
+        "/outputs": {
+          target: apiBase,
+          changeOrigin: true,
+          timeout: 60000,
+        },
+        "/images": {
+          target: apiBase,
+          changeOrigin: true,
+        },
       },
     },
   };
